@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_apps/crud_shared_preferences.dart';
 import 'package:flutter_apps/http_request.dart';
+import 'package:flutter_apps/pages/register_page.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
-import 'package:zoom_widget/zoom_widget.dart';
 
 class ListMoon extends StatefulWidget {
   DateTime initialDate;
@@ -16,102 +16,160 @@ class _ListMoonState extends State<ListMoon> {
   SharedPreferencesCRUD _sharedPreferencesCRUD;
   HttpRequest _httpRequest;
   DateTime _selectedDate;
+  String _selectedDateText = '';
+  String _userFullName = '';
   Size _size;
-  var _list = 'Листок мавжуд емас!';
+  var _user;
+  String _list = '';
+  bool _loading;
 
   @override
   void initState() {
     super.initState();
     _sharedPreferencesCRUD = SharedPreferencesCRUD();
     _httpRequest = HttpRequest();
-
-    _sharedPreferencesCRUD
-        .getStringSharedPreferences('list')
-        .then((list) => {if (list.length > 0) _list = list});
-    _sharedPreferencesCRUD.getStringSharedPreferences('date').then((date) => {
-          if (date == null)
-            {
-              widget.initialDate = DateTime.now(),
-              _selectedDate = DateTime.now()
-            }
-          else
-            {
-              widget.initialDate = DateTime.parse(date),
-              _selectedDate = DateTime.parse(date)
-            }
-        });
+    _loading = false;
+    init();
   }
 
-  Future<bool> _onBackPressed() {
-    SystemNavigator.pop();
+  Future<void> init() async {
+    var user = await _sharedPreferencesCRUD.getStringSharedPreferences('login');
+    if (user == null) {
+      await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Register(),
+          ));
+    }
+    // await _sharedPreferencesCRUD.removeSharedPereferences('login');
+
+    var responseBody = await _httpRequest.requestGet('/user');
+    if (responseBody == null) {
+      var userShared =
+          await _sharedPreferencesCRUD.getStringSharedPreferences('user');
+      _userFullName = userShared;
+    } else {
+      _userFullName = responseBody['fullname'];
+    }
+
+    var list = await _sharedPreferencesCRUD.getStringSharedPreferences('list');
+    setState(() {
+      if (list != null) {
+        _list = list;
+      } else {
+        _list = 'Листок мавжуд емас!';
+      }
+    });
+
+    var date = await _sharedPreferencesCRUD.getStringSharedPreferences('date');
+    if (date == null) {
+      widget.initialDate = DateTime.now();
+      _selectedDate = DateTime.now();
+    } else {
+      widget.initialDate = DateTime.parse(date);
+      _selectedDate = DateTime.parse(date);
+    }
+    _selectedDateText = _selectedDate.toString().substring(0, 7);
   }
 
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
 
-    return WillPopScope(
-      onWillPop: _onBackPressed,
-      child: Scaffold(
-        backgroundColor: Colors.grey[300],
-        appBar: AppBar(
-          title: Text('Листок'),
-          automaticallyImplyLeading: false,
-        ),
-        body: Center(
-          child: Container(
-            height: _size.height * 0.65,
-            width: _size.width * 0.95,
-            child: Card(
-              shadowColor: Colors.black,
-              child: Zoom(
-                width: _size.width * 1.2,
-                height: _size.height * 0.7,
-                backgroundColor: Colors.white,
-                onPositionUpdate: (Offset position) {
-                  print(position);
-                },
-                onScaleUpdate: (double scale, double zoom) {
-                  print("$scale  $zoom");
-                },
-                child: Center(
-                  child: Text(_list),
-                ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Листок'),
+        automaticallyImplyLeading: false,
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(top: 20, right: 20),
+            child: GestureDetector(
+              onTap: () {},
+              child: Text(
+                _selectedDateText,
+                style: TextStyle(fontSize: 16.0),
               ),
             ),
           ),
-        ),
-        floatingActionButton: Builder(
-          builder: (context) => FloatingActionButton.extended(
-            label: Text('Листлар'),
-            onPressed: () => {
-              showMonthPicker(
-                context: context,
-                initialDate: _selectedDate ?? widget.initialDate,
-                locale: Locale("ru"),
-              ).then((date) async {
-                if (date != null) {
-                  var responseBody =
-                      await _httpRequest.requestGet('/lists/get_list/$date');
-                  setState(() {
-                    _list = responseBody['list'];
-                    _selectedDate = date;
-                  });
-                  _sharedPreferencesCRUD.setStringSharedPreferences(
-                      'date', date.toString());
-                  _sharedPreferencesCRUD.setStringSharedPreferences(
-                      'list', _list);
-                }
-              })
-            },
-            icon: Icon(
-              Icons.list_alt,
-              size: 40,
+          Padding(
+            padding: EdgeInsets.only(right: 20.0),
+            child: GestureDetector(
+              onTap: () {},
+              child: Icon(Icons.more_vert),
             ),
           ),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        ],
       ),
+      body: _loading
+          ? Center(child: CircularProgressIndicator())
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: _size.height * 0.03,
+                      ),
+                      Text(_userFullName),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: _size.height * 0.79,
+                  alignment: AlignmentGeometry.lerp(
+                      Alignment.topCenter, Alignment.topCenter, 20),
+                  child: Expanded(
+                    child: InteractiveViewer(
+                      child: Text(
+                        _list,
+                        style: TextStyle(fontFamily: 'Consolas', fontSize: 10),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+      floatingActionButton: Card(
+        shape: StadiumBorder(
+            side: BorderSide(
+          color: Colors.transparent,
+          width: 1.0,
+        )),
+        elevation: 10.0,
+        child: FloatingActionButton.extended(
+          label: Text('Листлар'),
+          onPressed: () => {
+            showMonthPicker(
+              context: context,
+              initialDate: _selectedDate ?? widget.initialDate,
+              locale: Locale("ru"),
+            ).then((date) async {
+              if (date != null) {
+                setState(() {
+                  _loading = true;
+                });
+                var responseBody =
+                    await _httpRequest.requestGet('/lists/get_list/$date');
+                _sharedPreferencesCRUD.setStringSharedPreferences(
+                    'date', date.toString());
+                setState(() {
+                  _list = responseBody['list'];
+                  _selectedDate = date;
+                  _loading = false;
+                });
+                _sharedPreferencesCRUD.setStringSharedPreferences(
+                    'list', _list);
+              }
+            })
+          },
+          icon: Icon(
+            Icons.list_alt,
+            size: 40,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/register_page.dart';
+import 'package:flutter_apps/pages/list_page_datetime_picture.dart';
 
 void main() {
   runApp(Main());
@@ -15,7 +15,7 @@ class _MainState extends State<Main> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'TCH',
-      home: Register(),
+      home: ListMoon(),
     );
   }
 }

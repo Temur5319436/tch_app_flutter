@@ -21,21 +21,33 @@ class HttpRequest {
   }
 
   requestPost(url, body, [isJsonDecode = true, isHeaders = true]) async {
-    var headers = await _setHeaders();
-    var response;
-    if (isHeaders)
-      response = await http.post(_baseUrl + url, body: body, headers: headers);
-    else
-      response = await http.post(_baseUrl + url, body: body);
-    if (isJsonDecode)
-      return jsonDecode(response.body);
-    else
-      return response;
+    try {
+      var headers = await _setHeaders();
+      var response;
+      if (isHeaders)
+        response =
+            await http.post(_baseUrl + url, body: body, headers: headers);
+      else
+        response = await http.post(_baseUrl + url, body: body);
+      if (isJsonDecode)
+        return jsonDecode(response.body);
+      else
+        return response;
+    } catch (e) {
+      return null;
+    }
   }
 
   requestGet(url) async {
-    var headers = await _setHeaders();
-    var response = await http.get(_baseUrl + url, headers: headers);
-    return jsonDecode(response.body);
+    try {
+      var headers = await _setHeaders();
+      var response = await http.get(_baseUrl + url, headers: headers);
+      if (response.statusCode == 200)
+        return jsonDecode(response.body);
+      else
+        return null;
+    } catch (e) {
+      return null;
+    }
   }
 }
