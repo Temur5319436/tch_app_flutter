@@ -1,6 +1,8 @@
 # flutter_apps
 
-A new Flutter project.
+O'zbekiston temir yo'llari uchun dastur.
+
+TCH-2
 
 ## Getting Started
 
