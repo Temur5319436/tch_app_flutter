@@ -8,7 +8,8 @@ class SharedPreferencesCRUD {
 
   Future<String> getStringSharedPreferences(key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(key);
+    String result = prefs.getString(key);
+    return result == null ? '' : result;
   }
 
   Future<void> removeSharedPereferences(key) async {

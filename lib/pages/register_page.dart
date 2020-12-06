@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_apps/crud_shared_preferences.dart';
 import 'package:flutter_apps/http_request.dart';
 import 'package:flutter_apps/snack_bar.dart';
+import 'package:flutter_apps/pages/password/buttons.dart';
 
 class Register extends StatefulWidget {
   @override
@@ -16,8 +17,8 @@ class _RegisterState extends State<Register> {
   SharedPreferencesCRUD _sharedPreferencesCRUD;
   SnackBarShow _snackBarShow;
   HttpRequest _http;
-  String _fullName;
-  String _loading;
+  String _fullName = '';
+  String _loading = '';
   Size _screenSize;
 
   @override
@@ -28,8 +29,6 @@ class _RegisterState extends State<Register> {
     _passportController = TextEditingController();
     _snackBarShow = SnackBarShow();
     _http = HttpRequest();
-    _fullName = '';
-    _loading = '';
   }
 
   Future<void> loadWorkerFullName() async {
@@ -138,6 +137,9 @@ class _RegisterState extends State<Register> {
                             await _sharedPreferencesCRUD
                                 .setStringSharedPreferences(
                                     'login', user['username']);
+                            await _sharedPreferencesCRUD
+                                .setStringSharedPreferences(
+                                    'fullname', user['fullname']);
                             Navigator.pop(context);
                           } else {
                             _snackBarShow.snackBarShow(
