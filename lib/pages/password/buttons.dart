@@ -4,8 +4,14 @@ class PasswordButtons extends StatefulWidget {
   var setPassword;
   var getItem;
   var buttonSize;
+  String basePassword;
 
-  PasswordButtons({Key key, this.getItem, this.buttonSize, this.setPassword})
+  PasswordButtons(
+      {Key key,
+      @required this.getItem,
+      @required this.buttonSize,
+      @required this.setPassword,
+      @required this.basePassword})
       : super(key: key);
 
   @override

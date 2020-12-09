@@ -32,6 +32,7 @@ dependencies:
   shared_preferences: ^0.5.8
   path_provider: ^0.5.0+1
   month_picker_dialog: ^0.3.3
+  wave: ^0.1.0
 
 dev_dependencies:
   flutter_test:

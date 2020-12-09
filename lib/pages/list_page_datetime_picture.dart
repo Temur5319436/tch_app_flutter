@@ -87,40 +87,9 @@ class _ListMoonState extends State<ListMoon> {
           actions: [
             Padding(
               padding: EdgeInsets.only(right: 20.0),
-              child: GestureDetector(
-                onTap: () {
-                  showMonthPicker(
-                    context: context,
-                    initialDate: _selectedDate ?? widget.initialDate,
-                    locale: Locale("ru"),
-                  ).then((date) async {
-                    if (date != null) {
-                      setState(() {
-                        _loading = true;
-                      });
-                      var responseBody = await _httpRequest
-                          .requestGet('/lists/get_list/$date');
-                      _sharedPreferencesCRUD.setStringSharedPreferences(
-                          'date', date.toString());
-                      setState(() {
-                        _list = responseBody['list'];
-                        _selectedDate = date;
-                        _selectedDateText = date.toString().substring(0, 7);
-                        _loading = false;
-                      });
-                      _sharedPreferencesCRUD.setStringSharedPreferences(
-                          'list', _list);
-                    }
-                  });
-                },
-                child: Icon(Icons.date_range),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(right: 20.0),
-              child: GestureDetector(
-                onTap: () {},
-                child: Icon(Icons.more_vert),
+              child: IconButton(
+                onPressed: () => showCalendar(),
+                icon: Icon(Icons.date_range),
               ),
             ),
           ],
@@ -147,5 +116,30 @@ class _ListMoonState extends State<ListMoon> {
               ),
       ),
     );
+  }
+
+  Future<void> showCalendar() {
+    showMonthPicker(
+      context: context,
+      initialDate: _selectedDate ?? widget.initialDate,
+      locale: Locale("ru"),
+    ).then((date) async {
+      if (date != null) {
+        setState(() {
+          _loading = true;
+        });
+        var responseBody =
+            await _httpRequest.requestGet('/lists/get_list/$date');
+        _sharedPreferencesCRUD.setStringSharedPreferences(
+            'date', date.toString());
+        setState(() {
+          _list = responseBody['list'];
+          _selectedDate = date;
+          _selectedDateText = date.toString().substring(0, 7);
+          _loading = false;
+        });
+        _sharedPreferencesCRUD.setStringSharedPreferences('list', _list);
+      }
+    });
   }
 }
