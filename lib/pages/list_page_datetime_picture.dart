@@ -132,13 +132,23 @@ class _ListMoonState extends State<ListMoon> {
             await _httpRequest.requestGet('/lists/get_list/$date');
         _sharedPreferencesCRUD.setStringSharedPreferences(
             'date', date.toString());
-        setState(() {
-          _list = responseBody['list'];
-          _selectedDate = date;
-          _selectedDateText = date.toString().substring(0, 7);
-          _loading = false;
-        });
-        _sharedPreferencesCRUD.setStringSharedPreferences('list', _list);
+        if (responseBody == null) {
+          setState(() {
+            _list = 'Листок мавжуд емас!';
+            _selectedDate = date;
+            _selectedDateText = date.toString().substring(0, 7);
+            _loading = false;
+          });
+          _sharedPreferencesCRUD.setStringSharedPreferences('list', _list);
+        } else {
+          setState(() {
+            _list = responseBody['list'];
+            _selectedDate = date;
+            _selectedDateText = date.toString().substring(0, 7);
+            _loading = false;
+          });
+          _sharedPreferencesCRUD.setStringSharedPreferences('list', _list);
+        }
       }
     });
   }

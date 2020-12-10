@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HttpRequest {
-  final _baseUrl = 'http://192.168.88.184:8000/api';
+  final _baseUrl = 'https://vspmaster.ru/api';
 
   _setHeaders() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

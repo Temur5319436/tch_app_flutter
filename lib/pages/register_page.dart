@@ -5,9 +5,6 @@ import 'package:flutter_apps/crud_shared_preferences.dart';
 import 'package:flutter_apps/http_request.dart';
 import 'package:flutter_apps/pages/list_page_datetime_picture.dart';
 import 'package:flutter_apps/snack_bar.dart';
-import 'package:flutter_apps/pages/password/buttons.dart';
-import 'package:wave/config.dart';
-import 'package:wave/wave.dart';
 
 class Register extends StatefulWidget {
   @override
